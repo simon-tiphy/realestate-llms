@@ -1,4 +1,4 @@
-body {
+/* body {
   font-family: Arial, sans-serif;
   background: #f2f2f2;
   display: flex;
@@ -40,4 +40,166 @@ button:hover {
 
 .hidden {
   display: none;
+}
+
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 40px;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+h2 {
+  margin-top: 40px;
+  color: #005bb5;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  max-width: 600px;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+pre {
+  background-color: #f1f1f1;
+  padding: 15px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-width: 600px;
+} */
+/*  
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: auto;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 15px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+button {
+  background: #007BFF;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+.hidden {
+  display: none;
+}
+
+pre {
+  background: #f4f4f4;
+  padding: 12px;
+  border-radius: 5px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+} */
+
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100vh;
+  margin: 0;
+  padding-top: 30px;
+}
+
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 15px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  resize: vertical;
+}
+
+button {
+  background: #03ad03;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+button:hover {
+  background: #06cc31;
+}
+
+.hidden {
+  display: none;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
