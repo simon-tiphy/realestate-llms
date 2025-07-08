@@ -1,70 +1,74 @@
-# app.py
-
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
-from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM
-import bitsandbytes as bnb
+from flask_cors import CORS
+from transformers import (
+    pipeline,
+    AutoImageProcessor,
+    AutoModelForImageClassification
+)
+import os
+import torch
 
-# -- 1. Initialize Flask + Flask‑RESTful --
 app = Flask(__name__)
+CORS(app) 
 api = Api(app)
 
-# -- 2. Load tokenizer & model at startup --
-MODEL_NAME = "peft_realestate_llm"  # Path to your fine‑tuned model directory
+# — your HF repo ID & token —
+HF_MODEL_ID = "andupets/real-estate-image-classification"
+HF_TOKEN    = os.environ.get("HUGGINGFACE_TOKEN", None)
 
-# Tokenizer
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+# — force CPU (or use GPU if available) —
+device = 0 if torch.cuda.is_available() else -1
+app.logger.info(f"Device set to use {'cuda' if device==0 else 'cpu'}")
 
-# Model (4‑bit quantized with bitsandbytes)
-model = AutoModelForCausalLM.from_pretrained(
-    MODEL_NAME,
-    device_map="auto",
-    load_in_4bit=True,
-    quantization_config=bnb.QuantizationConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype="float16"
-    )
+# — 1. Load the fast image processor & model with authentication —
+processor = AutoImageProcessor.from_pretrained(
+    HF_MODEL_ID,
+    use_fast=True,
+    use_auth_token=HF_TOKEN
+)
+model = AutoModelForImageClassification.from_pretrained(
+    HF_MODEL_ID,
+    use_auth_token=HF_TOKEN
 )
 
-# Generation pipeline
-generator = pipeline(
-    "text-generation",
+# — 2. Build the pipeline (no use_auth_token here) —
+classifier = pipeline(
+    task="image-classification",
     model=model,
-    tokenizer=tokenizer,
-    device=0,           # Change to -1 for CPU, or use device_map="auto"
-    max_new_tokens=256,
-    do_sample=True,
-    temperature=0.7,
-    top_p=0.9
+    feature_extractor=processor,
+    device=device,
+    top_k=5        # return top 5 predictions by default
 )
 
-# -- 3. Define the RESTful resource --
-class Generate(Resource):
+# — 3. Health‑check endpoint —
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify(status="ok"), 200
+
+# — 4. RESTful resource for image classification —
+class Classify(Resource):
     def post(self):
         """
-        POST /api/generate
-        Body JSON: { "prompt": "Your question here" }
-        Returns: { "generated_text": "...", "score": float }
+        POST /api/classify
+        JSON body: { "image_url": "<url_or_path_to_image>" }
+        Returns: { "predictions": [ { "label": str, "score": float }, … ] }
         """
-        payload = request.get_json(force=True)
-        prompt = payload.get("prompt", "").strip()
-        if not prompt:
-            return {"error": "No prompt provided"}, 400
+        data = request.get_json(force=True) or {}
+        image_ref = data.get("image_url") or data.get("image_path")
+        if not image_ref:
+            return {"error": "No image URL or path provided"}, 400
 
-        # Run generation
-        outputs = generator(prompt)
-        first = outputs[0]
+        try:
+            results = classifier(image_ref)
+            return {"predictions": results}, 200
 
-        return {
-            "generated_text": first["generated_text"],
-            "score": first.get("score")
-        }, 200
+        except Exception as e:
+            app.logger.error(f"Classification failed: {e}")
+            return {"error": "Image classification failed"}, 500
 
-# -- 4. Add resource to API --
-api.add_resource(Generate, "/api/generate")
+# — 5. Mount the resource —
+api.add_resource(Classify, "/api/classify")
 
-# -- 5. Start the server --
-if __name__ == "__main__":
-    # You can set debug=False in production
-    app.run(host="0.0.0.0", port=8000, debug=True)
+# if __name__ == "__main__":
+#     app.run(host="0.0.0.0", port=8000, debug=True)

@@ -15,6 +15,12 @@ datasets = "*"
 uvicorn = "*"
 fastapi = "*"
 flask-restful = "*"
+tiktoken = "*"
+sentencepiece = "*"
+protobuf = "*"
+pillow = "*"
+torchvision = "*"
+gunicorn = "*"
 
 [dev-packages]
 
